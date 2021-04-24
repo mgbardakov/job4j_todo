@@ -22,7 +22,7 @@ public class HbmItemDAO extends HbmDao<Item, Integer> implements ItemDAO {
 
     @Override
     public List<Item> findUndoneItems() {
-        final Session session = sf.openSession();
+        final Session session = SESSION_FACTORY.openSession();
         final Transaction transaction = session.beginTransaction();
         try {
             var query = session.createQuery("from ru.job4j.todo.model.Item i where i.done = :done");

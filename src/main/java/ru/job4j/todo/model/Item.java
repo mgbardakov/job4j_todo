@@ -1,22 +1,11 @@
 package ru.job4j.todo.model;
 
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.ParamDef;
-
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Objects;
+
 @Entity
 @Table(name = "item")
-@FilterDef(
-        name = "statusFilter",
-        parameters = @ParamDef(name = "status", type = "java.lang.Boolean")
-)
-@Filter(
-        name = "statusFilter",
-        condition = "done = :status"
-)
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +15,11 @@ public class Item {
     private boolean done;
 
     public Item() {
+    }
+
+    public Item(String description, boolean done) {
+        this.description = description;
+        this.done = done;
     }
 
     public int getId() {

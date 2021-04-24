@@ -1,8 +1,12 @@
 package ru.job4j.todo.service;
 
 
+import ru.job4j.todo.model.Item;
+
+import java.util.List;
+
 public interface UserService {
-    void addNewTask(String message);
-    void changeTaskStatus(String message);
-    String getTasks(String message);
+    void addNewTask(Item item);
+    void updateTask(Item item);
+    List<Item> getTasks(boolean all);
 }
