@@ -8,6 +8,8 @@ import org.hibernate.cfg.Configuration;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public abstract class HbmDao <T, I extends Serializable> implements DAO<T, I> {
 
@@ -18,29 +20,11 @@ public abstract class HbmDao <T, I extends Serializable> implements DAO<T, I> {
         SESSION_FACTORY = config.buildSessionFactory();
     }
 
-    @Override
-    public T create(T model) {
+    protected <P> P txFunc(final Function<Session, P> command) {
         final Session session = SESSION_FACTORY.openSession();
         final Transaction transaction = session.beginTransaction();
         try {
-            session.save(model);
-            transaction.commit();
-            return model;
-        } catch (final Exception e) {
-            session.getTransaction().rollback();
-            throw e;
-        } finally {
-            session.close();
-        }
-    }
-
-    @Override
-    public T read(Class<T> type, I id) {
-        final Session session = SESSION_FACTORY.openSession();
-        final Transaction transaction = session.beginTransaction();
-        T rsl;
-        try {
-            rsl = session.get(type, id);
+            var rsl = command.apply(session);
             transaction.commit();
             return rsl;
         } catch (final Exception e) {
@@ -51,12 +35,11 @@ public abstract class HbmDao <T, I extends Serializable> implements DAO<T, I> {
         }
     }
 
-    @Override
-    public void update(T model) {
+    protected void txCons(final Consumer<Session> command) {
         final Session session = SESSION_FACTORY.openSession();
         final Transaction transaction = session.beginTransaction();
         try {
-            session.update(model);
+            command.accept(session);
             transaction.commit();
         } catch (final Exception e) {
             session.getTransaction().rollback();
@@ -64,39 +47,35 @@ public abstract class HbmDao <T, I extends Serializable> implements DAO<T, I> {
         } finally {
             session.close();
         }
+    }
+
+    @Override
+    public T create(T model) {
+            txFunc((session -> session.save(model)));
+            return model;
+    }
+
+    @Override
+    public T read(Class<T> type, I id) {
+            return txFunc((session -> session.get(type, id)));
+    }
+
+    @Override
+    public void update(T model) {
+        txCons(session -> session.update(model));
     }
 
     @Override
     public void delete(T model) {
-        final Session session = SESSION_FACTORY.openSession();
-        final Transaction transaction = session.beginTransaction();
-        try {
-            session.delete(model);
-            transaction.commit();
-        } catch (final Exception e) {
-            session.getTransaction().rollback();
-            throw e;
-        } finally {
-            session.close();
-        }
+        txCons(session -> session.delete(model));
     }
 
     @Override
     public List<T> findAll(Class<T> type) {
-        final Session session = SESSION_FACTORY.openSession();
-        final Transaction transaction = session.beginTransaction();
-        List<T> rslList;
-        try {
+        return txFunc(session -> {
             var cr = session.getCriteriaBuilder().createQuery(type);
             cr.select(cr.from(type));
-            rslList = session.createQuery(cr).getResultList();
-            transaction.commit();
-            return rslList;
-        } catch (final Exception e) {
-            session.getTransaction().rollback();
-            throw e;
-        } finally {
-            session.close();
-        }
+            return session.createQuery(cr).getResultList();
+        });
     }
 }

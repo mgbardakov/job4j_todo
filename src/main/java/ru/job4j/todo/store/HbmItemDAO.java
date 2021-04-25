@@ -1,7 +1,5 @@
 package ru.job4j.todo.store;
 
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import ru.job4j.todo.model.Item;
 
 import java.util.Comparator;
@@ -22,21 +20,13 @@ public class HbmItemDAO extends HbmDao<Item, Integer> implements ItemDAO {
 
     @Override
     public List<Item> findUndoneItems() {
-        final Session session = SESSION_FACTORY.openSession();
-        final Transaction transaction = session.beginTransaction();
-        try {
+        return txFunc(session -> {
             var query = session.createQuery("from ru.job4j.todo.model.Item i where i.done = :done");
             query.setParameter("done", false);
-            session.getTransaction().commit();
             var rsl = query.list();
             rsl.sort(Comparator.comparing(Item::getId));
             return rsl;
-        } catch (final Exception e) {
-            transaction.rollback();
-            throw e;
-        } finally {
-            session.close();
-        }
+        });
     }
 
     @Override
