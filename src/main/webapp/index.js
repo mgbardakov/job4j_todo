@@ -52,6 +52,12 @@ function saveAndDrawTasks(tasks) {
         if (x.done) {
             taskNode.setAttribute("style", "text-decoration: line-through")
         }
+        let authorBadge = document.createElement("span")
+        authorBadge.classList.add("badge")
+        authorBadge.classList.add("badge-secondary")
+        authorBadge.textContent = x.user.name
+        authorBadge.setAttribute("style", "margin-right: 20px")
+        taskNode.appendChild(authorBadge)
         let text = document.createTextNode(x.description)
         taskNode.appendChild(text)
         addHiddenId(x.id, taskNode)
@@ -72,7 +78,17 @@ function addHiddenId(id, node) {
     node.appendChild(idElement)
 }
 
+function exitUser() {
+    fetch(`exit.do`).then(response => {
+        if (response.ok === true) {
+            window.location.reload(true)
+        }
+    })
+}
+
 getItemList();
 document.querySelector("#status").addEventListener("click", getItemList)
 document.querySelector("#add-task-button").addEventListener("click", addNewItem)
+document.querySelector('#userField').prepend(localStorage.getItem("userName"))
+document.querySelector("#exitButton").addEventListener("click", exitUser)
 

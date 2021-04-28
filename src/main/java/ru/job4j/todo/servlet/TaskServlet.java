@@ -12,7 +12,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
 public class TaskServlet extends HttpServlet {
-    private static final UserService service = new UserServiceImpl(HbmItemDAO.instOf());
+    private static final TaskService service = new TaskServiceImpl(HbmItemDAO.instOf());
     private final MessageParser parser = new JSONMessageParser();
 
     @Override

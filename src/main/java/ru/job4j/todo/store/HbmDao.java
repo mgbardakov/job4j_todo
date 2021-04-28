@@ -13,11 +13,11 @@ import java.util.function.Function;
 
 public abstract class HbmDao <T, I extends Serializable> implements DAO<T, I> {
 
-    protected static final SessionFactory SESSION_FACTORY;
+    protected static SessionFactory SESSION_FACTORY = null;
     static {
-        var config = new Configuration();
-        config.configure();
-        SESSION_FACTORY = config.buildSessionFactory();
+            var config = new Configuration();
+            config.configure();
+            SESSION_FACTORY = config.buildSessionFactory();
     }
 
     protected <P> P txFunc(final Function<Session, P> command) {
