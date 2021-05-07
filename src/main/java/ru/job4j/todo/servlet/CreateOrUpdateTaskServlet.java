@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class CreateOrUpdateTaskServlet extends HttpServlet {
 
-    private final TaskService taskService = new TaskServiceImpl(HbmItemDAO.instOf());
+    private final TaskService taskService = new TaskServiceImpl();
     private final MessageParser parser = new JSONMessageParser();
 
     @Override

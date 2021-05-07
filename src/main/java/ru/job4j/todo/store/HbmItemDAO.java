@@ -21,7 +21,9 @@ public class HbmItemDAO extends HbmDao<Item, Integer> implements ItemDAO {
     @Override
     public List<Item> findUndoneItems() {
         return txFunc(session -> {
-            var query = session.createQuery("from ru.job4j.todo.model.Item i where i.done = :done");
+            var query = session.createQuery(
+                    "select distinct i from Item i left join fetch i.categories" +
+                       " where i.done = :done", Item.class);
             query.setParameter("done", false);
             var rsl = query.list();
             rsl.sort(Comparator.comparing(Item::getId));
@@ -31,8 +33,10 @@ public class HbmItemDAO extends HbmDao<Item, Integer> implements ItemDAO {
 
     @Override
     public List<Item> findAll(Class<Item> type) {
-        var rsl = super.findAll(type);
-        rsl.sort(Comparator.comparing(Item::getId));
-        return rsl;
+          var rsl = txFunc(session -> session.createQuery(
+                      "select distinct i from Item i left join fetch i.categories", Item.class)
+                         .list());
+          rsl.sort(Comparator.comparing(Item::getId));
+          return rsl;
     }
 }

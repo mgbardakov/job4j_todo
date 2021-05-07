@@ -12,6 +12,14 @@ function getItemList() {
         })
 }
 
+function getCategoryList() {
+    fetch("category.do").then(response => {
+        return response.json();
+    }).then(data => {
+        drawCategories(data)
+    })
+}
+
 function sendItem(item) {
     let message = JSON.stringify(item);
     console.log(message)
@@ -23,9 +31,23 @@ function sendItem(item) {
 
 function createNewItem() {
     let taskDescription = document.querySelector("#task-desc").value
+    let categories = createCategoryList()
     return {id : 0,
             description : taskDescription,
-            done : false}
+            done : false,
+            categories: categories}
+}
+
+function createCategoryList() {
+    let menu = document.querySelector("#category-menu")
+    let checkboxes = menu.querySelectorAll("[type = checkbox]")
+    let rsl = []
+    checkboxes.forEach(x => {
+        if (x.checked === true) {
+            rsl.push({id: x.value})
+        }
+    })
+    return rsl
 }
 
 function addNewItem() {
@@ -60,9 +82,30 @@ function saveAndDrawTasks(tasks) {
         taskNode.appendChild(authorBadge)
         let text = document.createTextNode(x.description)
         taskNode.appendChild(text)
+        let categoryDiv = document.createElement("div");
+        categoryDiv.setAttribute("style", "width: 130px")
+        categoryDiv.classList.add("float-right")
+        x.categories.forEach(x => {
+            let categoryBadge = document.createElement("span")
+            categoryBadge.classList.add("badge")
+            categoryBadge.classList.add("badge-pill")
+            categoryBadge.classList.add("badge-info")
+            categoryBadge.setAttribute("style", "margin-right: 5px")
+            categoryBadge.textContent = x.name
+            categoryDiv.appendChild(categoryBadge)
+        })
+        taskNode.appendChild(categoryDiv)
         addHiddenId(x.id, taskNode)
         taskNode.addEventListener("click", changeItemStatus)
         list.appendChild(taskNode)
+    })
+}
+
+function drawCategories(categories) {
+    let menu = document.querySelector("#category-menu")
+    categories.forEach(x => {
+        menu.insertAdjacentHTML(
+            "beforeend", `<li>&nbsp;<input type="checkbox" value="${x.id}"/>&nbsp;${x.name}</li>`)
     })
 }
 
@@ -87,8 +130,32 @@ function exitUser() {
 }
 
 getItemList();
+getCategoryList();
 document.querySelector("#status").addEventListener("click", getItemList)
 document.querySelector("#add-task-button").addEventListener("click", addNewItem)
 document.querySelector('#userField').prepend(localStorage.getItem("userName"))
 document.querySelector("#exitButton").addEventListener("click", exitUser)
+
+let options = [];
+
+$( '.dropdown-menu a' ).on( 'click', function( event ) {
+
+    let $target = $( event.currentTarget ),
+        val = $target.attr( 'data-value' ),
+        $inp = $target.find( 'input' ),
+        idx;
+
+    if ( ( idx = options.indexOf( val ) ) > -1 ) {
+        options.splice( idx, 1 );
+        setTimeout( function() { $inp.prop( 'checked', false ) }, 0);
+    } else {
+        options.push( val );
+        setTimeout( function() { $inp.prop( 'checked', true ) }, 0);
+    }
+
+    $( event.target ).blur();
+
+    console.log( options );
+    return false;
+});
 

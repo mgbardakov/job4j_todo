@@ -25,6 +25,6 @@ public class JSONMessageParserTest {
                                       new Item("task2", true));
         var expected = "[{\"id\":0,\"description\":\"task1\",\"done\":false}," +
                 "{\"id\":0,\"description\":\"task2\",\"done\":true}]";
-        assertThat(expected, is(parser.stringifyItemList(items)));
+        assertThat(expected, is(parser.stringifyList(items)));
     }
 }

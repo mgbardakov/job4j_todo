@@ -1,7 +1,10 @@
 package ru.job4j.todo.servlet;
 
-import ru.job4j.todo.service.*;
-import ru.job4j.todo.store.HbmItemDAO;
+import ru.job4j.todo.service.CategoryService;
+import ru.job4j.todo.service.CategoryServiceImpl;
+import ru.job4j.todo.service.JSONMessageParser;
+import ru.job4j.todo.service.MessageParser;
+import ru.job4j.todo.store.HbmCategoryDAO;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -11,18 +14,18 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
-public class TaskServlet extends HttpServlet {
-    private static final TaskService service = new TaskServiceImpl();
+public class CategoryServlet extends HttpServlet {
+
+    private final CategoryService service = new CategoryServiceImpl(HbmCategoryDAO.instOf());
     private final MessageParser parser = new JSONMessageParser();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try (var writer = new PrintWriter(resp.getOutputStream(),
+        try(var writer = new PrintWriter(resp.getOutputStream(),
                 true, StandardCharsets.UTF_8)) {
-            boolean all = Boolean.parseBoolean(req.getParameter("all"));
-            var items = service.getTasks(all);
-            var responseMessage = parser.stringifyList(items);
-            writer.print(responseMessage);
+            var list = service.getCategoryList();
+            var message = parser.stringifyList(list);
+            writer.print(message);
             writer.flush();
         }
     }

@@ -1,6 +1,7 @@
 package ru.job4j.todo.service;
 
 import com.google.gson.Gson;
+import ru.job4j.todo.model.Category;
 import ru.job4j.todo.model.Item;
 import ru.job4j.todo.model.User;
 
@@ -13,7 +14,7 @@ public class JSONMessageParser implements MessageParser {
     }
 
     @Override
-    public String stringifyItemList(List<Item> list) {
+    public <T> String stringifyList(List<T> list) {
         return new Gson().toJson(list);
     }
 
