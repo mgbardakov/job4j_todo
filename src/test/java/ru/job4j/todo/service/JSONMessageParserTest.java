@@ -3,7 +3,10 @@ package ru.job4j.todo.service;
 import org.junit.Test;
 import ru.job4j.todo.model.Item;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -11,20 +14,15 @@ import static org.junit.Assert.*;
 public class JSONMessageParserTest {
 
     private final MessageParser parser = new JSONMessageParser();
+    private final Date now = new Date(System.currentTimeMillis());
 
     @Test
     public void whenPassJsonThenGetItemObject() {
         var message = "{description : task1, done : false}";
         var expected = new Item("task1", false);
-        assertThat(expected, is(parser.getItem(message)));
-    }
-
-    @Test
-    public void stringifyItemList() {
-        var items = List.of(new Item("task1", false),
-                                      new Item("task2", true));
-        var expected = "[{\"id\":0,\"description\":\"task1\",\"done\":false}," +
-                "{\"id\":0,\"description\":\"task2\",\"done\":true}]";
-        assertThat(expected, is(parser.stringifyList(items)));
+        expected.setCreated(now);
+        var actual = parser.getItem(message);
+        actual.setCreated(now);
+        assertThat(expected, is(actual));
     }
 }
